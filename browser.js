@@ -34,18 +34,25 @@ const Mermaid = {
     }
 }
 
+const Milestones = {
+    view: (vnode) => {
+        let ms = state.milestones.map(({id,title}) => `${id.replace(/^n/,'')} - ${title}`)
+        return m('pre', ms.join("\n"))
+    }
+}
 
 let roadmap = `
 graph LR
     loading(Loading milestones ... please wait);
 `
-
-let state = {roadmap}
+let milestones = []
+let state = {roadmap, milestones}
 
 let App = {
     view: (vnode) => {
         return m('div', [
-            m('.roadmap', m(Mermaid, {mermaid: state.roadmap}))
+            m('.roadmap', m(Mermaid, {mermaid: state.roadmap})),
+            m('.milestones', m(Milestones))
         ])
     }
 }
@@ -83,17 +90,34 @@ function github() {
 
 const dependsRegexp = /# depends on (.+)/g
 
+var urls = {}
+
+function openInNewTab(url) {
+    let win = window.open(url, '_blank');
+    win.focus();
+}
+
+function callback (x) {
+    let u = urls[x];
+    openInNewTab(u)
+}
 
 function startApp(elementId) {
     m.mount(document.getElementById('main'), App)
     github().then(milestones => {
-        console.log(milestones.map(m => m.title));
+        state.milestones = milestones.map(m => {
+            let x = m.title.split(" - ")
+            let id = `n${x[0]}`
+            let title = x[1]
+            return {id,title}
+        })
+        
         let ms = milestones.map(m => {
             let x = m.title.split(" - ")
-            let node = `\tclick n${x[0]} "${m.url}" "go"; 
-\tn${x[0]}(${x[0]}: ${x[1]});`
-        // })
-        // let deps = milestones.map(m => {
+            let id = `n${x[0]}`
+            let title = x[1]
+            urls[id] = m.html_url
+            let node = `\t${id}("${title}: ${m.closed_issues}/${m.open_issues}");\n\tclick n${x[0]} callback "${m.url}";`
             let dependencies = m.description.match(dependsRegexp)
             if (dependencies) {
                 let deps = dependencies.map(d => {
