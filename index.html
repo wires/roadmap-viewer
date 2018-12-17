@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Taxfix Question Editor</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <script src="vendor/mithril.js"></script>
+    <script src="vendor/mermaid.min.js"></script>
+    <script src="vendor/ramda.min.js"></script>
+    <script src="lib/ready.js"></script>
+    <script src="browser.js"></script>
+  </head>
+  <body>
+    <div id="main">app will be rendered here</div>
+    <script>
+        browserReady().then(() => {
+            startApp("main")
+        })
+    </script>
+  </body>
+</html>
