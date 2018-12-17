@@ -55,15 +55,15 @@ function github() {
 
     const user = 'wires';
     // Generate token here: https://github.com/settings/tokens
-    const token = 'ed0ad757434229cee217ff19d9a8913e737474e6';
+    // const token = 'ed0ad757434229cee217ff19d9a8913e737474e6';
     const endpoint = 'https://api.github.com';
-    const creds = `${user}:${token}`;
-    const auth = btoa(creds);
+    // const creds = `${user}:${token}`;
+    // const auth = btoa(creds);
 
     const options = {
         mode: 'cors',
         headers: {
-            'Authorization': 'Basic ' + auth,
+            // 'Authorization': 'Basic ' + auth,
         }
     }
 
@@ -90,20 +90,23 @@ function startApp(elementId) {
         console.log(milestones.map(m => m.title));
         let ms = milestones.map(m => {
             let x = m.title.split(" - ")
-            return `\tn${x[0]}(${x[0]}: ${x[1]});`
-        })
-        let deps = milestones.map(m => {
+            let node = `\tclick n${x[0]} "${m.url}" "go"; 
+\tn${x[0]}(${x[0]}: ${x[1]});`
+        // })
+        // let deps = milestones.map(m => {
             let dependencies = m.description.match(dependsRegexp)
-            if (!dependencies)
-                return []
-            
-            let edges = dependencies.map(d => {
-                return d.split("# depends on ")[1]
-            })
-            console.log(edges)
+            if (dependencies) {
+                let deps = dependencies.map(d => {
+                    return d.split("# depends on ")[1]
+                });
+                let z = deps.map(k => `n${x[0]} --> n${k};`);
+                return node + "\n\t" + z.join("\n\t");
+            } else {
+                return node;
+            }
         })
-        // console.log(deps)
         state.roadmap = 'graph LR\n' + (ms.join("\n"))
+        console.log(state.roadmap)
         m.redraw();
     })
 }
